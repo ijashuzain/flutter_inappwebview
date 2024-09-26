@@ -8,6 +8,7 @@ import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.webkit.WebView;
+import android.webkit.WebSettings;
 import android.widget.FrameLayout;
 
 import androidx.annotation.NonNull;
@@ -46,7 +47,7 @@ public class FlutterWebView implements PlatformWebView {
     displayListenerProxy.onPreWebViewInitialization(displayManager);
 
     keepAliveId = (String) params.get("keepAliveId");
-    
+
     Map<String, Object> initialSettings = (Map<String, Object>) params.get("initialSettings");
     Map<String, Object> contextMenu = (Map<String, Object>) params.get("contextMenu");
     Integer windowId = (Integer) params.get("windowId");
@@ -63,8 +64,16 @@ public class FlutterWebView implements PlatformWebView {
       }
     }
 
-    webView = new InAppWebView(context, plugin, id, windowId, customSettings, contextMenu, 
-            customSettings.useHybridComposition ? null : plugin.flutterView, userScripts);
+    try {
+      webView = new InAppWebView(context, plugin, id, windowId, customSettings, contextMenu,
+              customSettings.useHybridComposition ? null : plugin.flutterView, userScripts);
+    } catch (RuntimeException e) {
+      Log.e(LOG_TAG, "Error creating InAppWebView: " + e.getMessage());
+      webView = new WebView(context);
+      WebSettings settings = webView.getSettings();
+      settings.setJavaScriptEnabled(true);
+    }
+
     displayListenerProxy.onPostWebViewInitialization(displayManager);
 
     // set MATCH_PARENT layout params to the WebView, otherwise it won't take all the available space!
@@ -75,11 +84,17 @@ public class FlutterWebView implements PlatformWebView {
     pullToRefreshLayout.addView(webView);
     pullToRefreshLayout.prepare();
 
-    FindInteractionController findInteractionController = new FindInteractionController(webView, plugin, id, null);
-    webView.findInteractionController = findInteractionController;
-    findInteractionController.prepare();
+    // Check if webView is instanceof InAppWebView before using InAppWebView specific features
+    if (webView instanceof InAppWebView) {
+      FindInteractionController findInteractionController = new FindInteractionController((InAppWebView) webView, plugin, id, null);
+      ((InAppWebView) webView).findInteractionController = findInteractionController;
+      findInteractionController.prepare();
 
-    webView.prepare();
+      ((InAppWebView) webView).prepare();
+    } else {
+      // Handle the case where webView is a basic WebView
+      Log.w(LOG_TAG, "Using basic WebView. Some features may not be available.");
+    }
   }
 
   @Override

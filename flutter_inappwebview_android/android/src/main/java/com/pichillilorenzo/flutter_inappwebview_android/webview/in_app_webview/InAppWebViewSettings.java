@@ -28,6 +28,8 @@ public class InAppWebViewSettings implements ISettings<InAppWebViewInterface> {
 
   public static final String LOG_TAG = "InAppWebViewSettings";
 
+  public Boolean suppressErrorPage = false;
+
   public Boolean useShouldOverrideUrlLoading = false;
   public Boolean useOnLoadResource = false;
   public Boolean useOnDownloadStart = false;
