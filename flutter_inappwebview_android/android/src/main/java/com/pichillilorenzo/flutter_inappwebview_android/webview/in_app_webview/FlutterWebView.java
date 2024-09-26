@@ -68,10 +68,10 @@ public class FlutterWebView implements PlatformWebView {
       webView = new InAppWebView(context, plugin, id, windowId, customSettings, contextMenu,
               customSettings.useHybridComposition ? null : plugin.flutterView, userScripts);
     } catch (RuntimeException e) {
-      Log.e(LOG_TAG, "Error creating InAppWebView: " + e.getMessage());
-      webView = new WebView(context);
-      WebSettings settings = webView.getSettings();
-      settings.setJavaScriptEnabled(true);
+      Log.e(LOG_TAG, "Error creating InAppWebView with custom settings: " + e.getMessage());
+      InAppWebViewSettings defaultSettings = new InAppWebViewSettings();
+      webView = new InAppWebView(context, plugin, id, windowId, defaultSettings, null,
+              plugin.flutterView, new ArrayList<>());
     }
 
     displayListenerProxy.onPostWebViewInitialization(displayManager);

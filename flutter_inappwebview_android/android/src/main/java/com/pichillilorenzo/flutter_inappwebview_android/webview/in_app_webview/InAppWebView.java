@@ -282,10 +282,6 @@ final public class InAppWebView extends InputAwareWebView implements InAppWebVie
     settings.setDisplayZoomControls(customSettings.displayZoomControls);
     settings.setSupportMultipleWindows(customSettings.supportMultipleWindows);
 
-    if (WebViewFeature.isFeatureSupported(WebViewFeature.SUPPRESS_ERROR_PAGE)) {
-      WebSettingsCompat.setSuppressErrorPageEnabled(settings, customSettings.suppressErrorPage);
-    }
-
     if (WebViewFeature.isFeatureSupported(WebViewFeature.SAFE_BROWSING_ENABLE))
       WebSettingsCompat.setSafeBrowsingEnabled(settings, customSettings.safeBrowsingEnabled);
     else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O)
